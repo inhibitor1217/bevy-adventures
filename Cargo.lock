@@ -310,10 +310,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy-diagnostics-ui"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy-marching-cubes"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy-diagnostics-ui",
 ]
 
 [[package]]

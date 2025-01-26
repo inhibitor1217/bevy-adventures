@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-mod diagnostics;
-
 fn main() {
     let mut app = App::new();
 
@@ -21,7 +19,7 @@ fn main() {
     }
 
     app.add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin);
-    app.add_plugins(diagnostics::DiagnosticsUiPlugin);
+    app.add_plugins(bevy_diagnostics_ui::DiagnosticsUiPlugin);
     app.add_systems(Startup, setup);
 
     app.run();

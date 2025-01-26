@@ -1,5 +1,5 @@
 [workspace]
-members = ["apps/*"]
+members = ["apps/*", "crates/bevy-diagnostics-ui"]
 resolver = "2"
 
 [profile.dev]

@@ -5,11 +5,11 @@ use bevy::{
 
 /// Marker component for the diagnostics UI root node
 #[derive(Component)]
-pub struct DiagnosticsUiRoot;
+struct DiagnosticsUiRoot;
 
 /// Marker component for the FPS text
 #[derive(Component)]
-pub struct FpsText;
+struct FpsText;
 
 /// Bevy plugin providing diagnostics UI feature.
 #[derive(Default)]

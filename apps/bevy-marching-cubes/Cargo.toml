@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 bevy = "0.15.1"
+bevy-diagnostics-ui = { path = "../../crates/bevy-diagnostics-ui" }
