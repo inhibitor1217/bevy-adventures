@@ -33,9 +33,6 @@ fn main() {
     app.add_plugins(bevy_diagnostics_ui::DiagnosticsUiPlugin);
     app.add_systems(Startup, setup);
 
-    app.add_plugins(MaterialPlugin::<SimplexNoiseMaterial>::default());
-    app.add_systems(Update, simplex_noise_update_uniforms);
-
     app.add_plugins(MaterialPlugin::<MusgraveMaterial>::default());
     app.add_systems(Update, musgrave_update_uniforms);
 
@@ -60,27 +57,6 @@ fn setup(
     ));
 }
 
-#[derive(Debug, Clone, AsBindGroup, Asset, TypePath, Default)]
-struct SimplexNoiseMaterial {
-    #[uniform(0)]
-    time: Vec4,
-}
-
-impl Material for SimplexNoiseMaterial {
-    fn fragment_shader() -> ShaderRef {
-        "shaders/simplex_noise_mat.wgsl".into()
-    }
-}
-
-fn simplex_noise_update_uniforms(
-    mut materials: ResMut<Assets<SimplexNoiseMaterial>>,
-    time: Res<Time>,
-) {
-    for mat in materials.iter_mut() {
-        mat.1.time = Vec4::new(time.elapsed_secs(), time.delta_secs(), 0.0, 0.0);
-    }
-}
-
 #[derive(Debug, Clone, Copy)]
 struct MusgraveConfig {
     offset: Vec3,
@@ -102,21 +78,10 @@ impl Default for MusgraveConfig {
     }
 }
 
-impl From<MusgraveConfig> for Vec4 {
-    fn from(config: MusgraveConfig) -> Self {
-        Vec4::new(
-            config.scale,
-            config.detail as f32,
-            config.dimension,
-            config.lacunarity,
-        )
-    }
-}
-
 #[derive(Debug, Clone, AsBindGroup, Asset, TypePath, Default)]
 struct MusgraveMaterial {
     #[uniform(0)]
-    offset: Vec3,
+    offset: Vec4,
 
     #[uniform(1)]
     config_uniform: Vec4,
@@ -126,8 +91,18 @@ struct MusgraveMaterial {
 
 impl MusgraveMaterial {
     fn update_uniforms(&mut self) {
-        self.offset = self.config.offset;
-        self.config_uniform = self.config.into();
+        self.offset = Vec4::new(
+            self.config.offset.x,
+            self.config.offset.y,
+            self.config.offset.z,
+            0.0,
+        );
+        self.config_uniform = Vec4::new(
+            self.config.scale,
+            self.config.detail as f32,
+            self.config.dimension,
+            self.config.lacunarity,
+        );
     }
 }
 
