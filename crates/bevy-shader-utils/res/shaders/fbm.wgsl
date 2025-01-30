@@ -1,4 +1,6 @@
-#import "shaders/simplex_noise.wgsl"::{noise2d, noise3d}
+#define_import_path bevy_shader_utils::fbm
+
+#import bevy_shader_utils::simplex_noise::{noise2d, noise3d}
 
 struct FbmConfig {
   scale: f32,

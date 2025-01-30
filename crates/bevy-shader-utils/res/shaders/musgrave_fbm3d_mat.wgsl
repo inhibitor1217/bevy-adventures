@@ -1,5 +1,5 @@
 #import bevy_pbr::forward_io::VertexOutput
-#import "shaders/fbm.wgsl"::{FbmConfig, fbm2d}
+#import bevy_shader_utils::fbm::{FbmConfig, fbm2d}
 
 @group(2) @binding(0)
 var<uniform> offset: vec4<f32>;

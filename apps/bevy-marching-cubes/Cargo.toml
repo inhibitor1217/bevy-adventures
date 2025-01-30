@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 bevy = "0.15.1"
 bevy-diagnostics-ui = { path = "../../crates/bevy-diagnostics-ui" }
+bevy-shader-utils = { path = "../../crates/bevy-shader-utils" }

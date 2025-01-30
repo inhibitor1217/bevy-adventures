@@ -1,7 +1,6 @@
-use bevy::{
-    prelude::*,
-    render::render_resource::{AsBindGroup, ShaderRef},
-};
+use bevy::prelude::*;
+
+use bevy_shader_utils::{MusgraveMaterial, ShaderUtilsPlugin};
 
 fn main() {
     let mut app = App::new();
@@ -33,8 +32,7 @@ fn main() {
     app.add_plugins(bevy_diagnostics_ui::DiagnosticsUiPlugin);
     app.add_systems(Startup, setup);
 
-    app.add_plugins(MaterialPlugin::<MusgraveMaterial>::default());
-    app.add_systems(Update, musgrave_update_uniforms);
+    app.add_plugins(ShaderUtilsPlugin);
 
     app.run();
 }
@@ -55,65 +53,4 @@ fn setup(
         Transform::from_xyz(0.0, 0.0, 0.0)
             .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
     ));
-}
-
-#[derive(Debug, Clone, Copy)]
-struct MusgraveConfig {
-    offset: Vec3,
-    scale: f32,
-    detail: u32,
-    dimension: f32,
-    lacunarity: f32,
-}
-
-impl Default for MusgraveConfig {
-    fn default() -> Self {
-        Self {
-            offset: Vec3::ZERO,
-            scale: 1.0,
-            detail: 5,
-            dimension: 2.0,
-            lacunarity: 2.0,
-        }
-    }
-}
-
-#[derive(Debug, Clone, AsBindGroup, Asset, TypePath, Default)]
-struct MusgraveMaterial {
-    #[uniform(0)]
-    offset: Vec4,
-
-    #[uniform(1)]
-    config_uniform: Vec4,
-
-    config: MusgraveConfig,
-}
-
-impl MusgraveMaterial {
-    fn update_uniforms(&mut self) {
-        self.offset = Vec4::new(
-            self.config.offset.x,
-            self.config.offset.y,
-            self.config.offset.z,
-            0.0,
-        );
-        self.config_uniform = Vec4::new(
-            self.config.scale,
-            self.config.detail as f32,
-            self.config.dimension,
-            self.config.lacunarity,
-        );
-    }
-}
-
-impl Material for MusgraveMaterial {
-    fn fragment_shader() -> ShaderRef {
-        "shaders/musgrave_fbm3d_mat.wgsl".into()
-    }
-}
-
-fn musgrave_update_uniforms(mut materials: ResMut<Assets<MusgraveMaterial>>) {
-    for mat in materials.iter_mut() {
-        mat.1.update_uniforms();
-    }
 }

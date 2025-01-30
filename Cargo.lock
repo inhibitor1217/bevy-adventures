@@ -322,10 +322,18 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-diagnostics-ui",
+ "bevy-shader-utils",
 ]
 
 [[package]]
 name = "bevy-river"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
+name = "bevy-shader-utils"
 version = "0.1.0"
 dependencies = [
  "bevy",
