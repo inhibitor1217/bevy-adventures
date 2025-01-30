@@ -22,6 +22,13 @@ const GRAD2 = array<vec2<f32>, 8>(
     vec2(1.0, 0.0), vec2(-1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0)
 );
 
+const GRAD3 = array<vec3<f32>, 16>(
+    vec3(1.0, 1.0, 0.0), vec3(-1.0, 1.0, 0.0), vec3(1.0, -1.0, 0.0), vec3(-1.0, -1.0, 0.0),
+    vec3(1.0, 0.0, 1.0), vec3(-1.0, 0.0, 1.0), vec3(1.0, 0.0, -1.0), vec3(-1.0, 0.0, -1.0),
+    vec3(0.0, 1.0, 1.0), vec3(0.0, -1.0, 1.0), vec3(0.0, 1.0, -1.0), vec3(0.0, -1.0, -1.0),
+    vec3(1.0, 1.0, 0.0), vec3(-1.0, 1.0, 0.0), vec3(0.0, -1.0, 1.0), vec3(0.0, -1.0, -1.0)
+);
+
 fn hash(i: u32) -> u32 {
     return PERM[i & 255u];
 }
@@ -80,4 +87,91 @@ fn noise2d(pos: vec2<f32>) -> f32 {
     }
 
     return 70.0 * (n0 + n1 + n2);
+}
+
+fn noise3d(pos: vec3<f32>) -> f32 {
+    var n0: f32 = 0.0;
+    var n1: f32 = 0.0;
+    var n2: f32 = 0.0;
+    var n3: f32 = 0.0;
+
+    let F3: f32 = 1.0 / 3.0;
+    let G3: f32 = 1.0 / 6.0;
+
+    let s = (pos.x + pos.y + pos.z) * F3;
+    let xs = pos.x + s;
+    let ys = pos.y + s;
+    let zs = pos.z + s;
+    let i = floor(xs);
+    let j = floor(ys);
+    let k = floor(zs);
+
+    let t = (i + j + k) * G3;
+    let X0 = i - t;
+    let Y0 = j - t;
+    let Z0 = k - t;
+    let x0 = pos.x - X0;
+    let y0 = pos.y - Y0;
+    let z0 = pos.z - Z0;
+
+    var i1: u32;
+    var j1: u32;
+    var k1: u32;
+    var i2: u32;
+    var j2: u32;
+    var k2: u32;
+
+    if (x0 >= y0) {
+        if (y0 >= z0) {
+            i1 = 1u; j1 = 0u; k1 = 0u; i2 = 1u; j2 = 1u; k2 = 0u;
+        } else if (x0 >= z0) {
+            i1 = 1u; j1 = 0u; k1 = 0u; i2 = 1u; j2 = 0u; k2 = 1u;
+        } else {
+            i1 = 0u; j1 = 0u; k1 = 1u; i2 = 1u; j2 = 0u; k2 = 1u;
+        }
+    } else {
+        if (y0 < z0) {
+            i1 = 0u; j1 = 0u; k1 = 1u; i2 = 0u; j2 = 1u; k2 = 1u;
+        } else if (x0 < z0) {
+            i1 = 0u; j1 = 1u; k1 = 0u; i2 = 0u; j2 = 1u; k2 = 1u;
+        } else {
+            i1 = 0u; j1 = 1u; k1 = 0u; i2 = 1u; j2 = 1u; k2 = 0u;
+        }
+    }
+
+    let x1 = x0 - f32(i1) + G3;
+    let y1 = y0 - f32(j1) + G3;
+    let z1 = z0 - f32(k1) + G3;
+    let x2 = x0 - f32(i2) + 2.0 * G3;
+    let y2 = y0 - f32(j2) + 2.0 * G3;
+    let z2 = z0 - f32(k2) + 2.0 * G3;
+    let x3 = x0 - 1.0 + 3.0 * G3;
+    let y3 = y0 - 1.0 + 3.0 * G3;
+    let z3 = z0 - 1.0 + 3.0 * G3;
+
+    let t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+    if (t0 > 0.0) {
+        let gi0 = hash(u32(i) + hash(u32(j) + hash(u32(k)))) & 15u;
+        n0 = t0 * t0 * t0 * t0 * dot(GRAD3[gi0], vec3(x0, y0, z0));
+    }
+
+    let t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+    if (t1 > 0.0) {
+        let gi1 = hash(u32(i) + i1 + hash(u32(j) + j1 + hash(u32(k) + k1))) & 15u;
+        n1 = t1 * t1 * t1 * t1 * dot(GRAD3[gi1], vec3(x1, y1, z1));
+    }
+
+    let t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+    if (t2 > 0.0) {
+        let gi2 = hash(u32(i) + i2 + hash(u32(j) + j2 + hash(u32(k) + k2))) & 15u;
+        n2 = t2 * t2 * t2 * t2 * dot(GRAD3[gi2], vec3(x2, y2, z2));
+    }
+
+    let t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+    if (t3 > 0.0) {
+        let gi3 = hash(u32(i) + 1u + hash(u32(j) + 1u + hash(u32(k) + 1u))) & 15u;
+        n3 = t3 * t3 * t3 * t3 * dot(GRAD3[gi3], vec3(x3, y3, z3));
+    }
+
+    return 32.0 * (n0 + n1 + n2 + n3);
 }

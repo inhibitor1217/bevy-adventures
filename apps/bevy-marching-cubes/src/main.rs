@@ -51,16 +51,16 @@ fn setup(
 
     commands.spawn((
         Mesh3d(meshes.add(Rectangle::new(1.0, 1.0))),
-        MeshMaterial3d(materials.add(SimplexNoiseMaterial { time: 0.0 })),
+        MeshMaterial3d(materials.add(SimplexNoiseMaterial::default())),
         Transform::from_xyz(0.0, 0.0, 0.0)
             .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
     ));
 }
 
-#[derive(Debug, Clone, AsBindGroup, Asset, TypePath)]
+#[derive(Debug, Clone, AsBindGroup, Asset, TypePath, Default)]
 struct SimplexNoiseMaterial {
     #[uniform(0)]
-    time: f32,
+    time: Vec4,
 }
 
 impl Material for SimplexNoiseMaterial {
@@ -74,6 +74,6 @@ fn simplex_noise_update_uniforms(
     time: Res<Time>,
 ) {
     for mat in materials.iter_mut() {
-        mat.1.time = time.elapsed_secs();
+        mat.1.time = Vec4::new(time.elapsed_secs(), time.delta_secs(), 0.0, 0.0);
     }
 }
